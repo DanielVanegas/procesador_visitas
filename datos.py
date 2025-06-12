@@ -62,7 +62,9 @@ def obtener_datos_espaciales(lat, lon):
             if res:
                 barrio = res[0].title() if res[0] else "No encontrado"
                 localidad = res[1].title() if res[1] else "No encontrado"
-                sitios = ", ".join(res[2]) if res[2] else "No hay sitios cercanos relevantes"
+                sitios_raw = res[2] if res[2] else []
+                sitios_filtrados = [s for s in sitios_raw if s]
+                sitios = ", ".join(sitios_filtrados) if sitios_filtrados else "No hay sitios cercanos relevantes"
                 estrato = str(res[3]) if res[3] is not None else "No identificado"
                 return barrio, localidad, sitios, estrato
             return "No encontrado", "No encontrado", "No hay sitios cercanos relevantes", "No identificado"

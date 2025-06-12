@@ -28,9 +28,11 @@ def generar_informe(consecutivo, carpeta_path):
     barrio, localidad, sitios, estrato = obtener_datos_espaciales(lat, lon)
     
     if barrio == "No encontrado" or localidad == "No encontrado":
-        log(f"Datos espaciales no encontrados para {consecutivo}. No se genera Observaciones.docx.", carpeta_path)
+        log(f"Datos espaciales no encontrados para {consecutivo}. Se genera Observaciones.docx. con datos parciales", carpeta_path)
     else:
-        texto = f"""
+        log(f"Datos espaciales completos para {consecutivo}.", carpeta_path)
+        
+    texto = f"""
 Inmueble ubicado en la localidad de {localidad}, barrio {barrio}, al sur {datos['al_sur']}, norte {datos['al_norte']}, oriente {datos['al_oriente']}, occidente {datos['al_occidente']}. Tiene cercanía a {sitios}.
 
 Sector {datos['sector']}
@@ -39,16 +41,16 @@ Sector {datos['sector']}
 
 Apartamento ubicado en {datos['piso']} piso, vista {datos['vista']}, diseño funcional, iluminación y ventilación natural, acabados normales.
 
-Garajes No. 39 y 40 (2 unidades), sencillos, cubiertos, en servidumbre propia. Depósito No. 206 (1 unidad). Los garajes y del depósito son de uso privado, según Escritura Pública suministrada. Área construida total de 91.05 m², área privada de 85.82 m², cuenta con el derecho de uso exclusivo sobre una zona común destinada a terraza con un área de 31.69 m², aproximadamente 28.61 m² medidos in situ.
+Garaje(s) No. 39 y 40 (2 unidades), sencillo(s), cubierto(s), en servidumbre propia. Depósito(s) No. 206 (1 unidad). El(los) garaje(s) y el(los) depósito(s) son de uso privado, según Escritura Pública suministrada. Área total construida de 91.05 m², área privada de 85.82 m², cuenta con el derecho de uso exclusivo sobre una zona común destinada a terraza con un área de 31.69 m², aproximadamente 28.61 m² medidos in situ.
 
 Fecha de la visita: {datos['fecha_formulario']}.
 """
 
-        os.makedirs(documentos_path, exist_ok=True)
-        doc = Document()
-        doc.add_paragraph(texto.strip())
-        doc.save(observaciones_path)
-        log(f"Generado Observaciones.docx para {consecutivo}.", carpeta_path)
+    os.makedirs(documentos_path, exist_ok=True)
+    doc = Document()
+    doc.add_paragraph(texto.strip())
+    doc.save(observaciones_path)
+    log(f"Generado Observaciones.docx para {consecutivo}.", carpeta_path)
 
     param_dest_path = os.path.join(carpeta_path, os.path.basename(PARAM_FILE_PATH))
     if not os.path.exists(param_dest_path):

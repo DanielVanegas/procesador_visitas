@@ -12,7 +12,7 @@ def obtener_datos_visita(consecutivo):
         dict: Diccionario con los datos del formulario, o None si no se encuentra.
     """
     query = """
-        SELECT v.*
+        SELECT v.*, a.latitud, a.longitud
         FROM app.visita v
         JOIN app.asignacion a ON v.id_asignacion = a.id
         WHERE a.consecutivo = %s

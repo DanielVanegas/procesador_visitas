@@ -1,9 +1,12 @@
 import os
+import re
 from docx import Document
 from openpyxl import load_workbook
 from datos import obtener_datos_visita, obtener_datos_espaciales
 from config import PARAM_FILE_PATH
 from utils import log
+from PyPDF2 import PdfReader
+from datetime import datetime
 
 def generar_informe(consecutivo, carpeta_path):
     documentos_path = os.path.join(carpeta_path, 'Documentos')
@@ -60,8 +63,27 @@ Fecha de la visita: {datos['fecha_formulario']}.
     wb = load_workbook(param_dest_path)
     ws = wb.active
 
+    for archivo in os.listdir(documentos_path):
+        if archivo.lower().startswith("formato") and archivo.lower().endswith(".pdf"):
+            ruta_pdf = os.path.join(documentos_path, archivo)
+            datos_pdf = extraer_datos_pdf(ruta_pdf)
+            if datos_pdf:
+                fecha_raw = datos_pdf.get("fecha_radicacion")
+                if fecha_raw:
+                    try:
+                        ws["B2"] = datetime.strptime(fecha_raw, "%d/%m/%Y")
+                        ws["B2"].number_format = "dd/mm/yyyy hh:mm"
+                    except ValueError:
+                        log(f"Formato de fecha inválido en PDF para {consecutivo}: {fecha_raw}", carpeta_path)
+                        ws["B2"] = fecha_raw
+                ws["C5"] = datos_pdf.get("nombre_solicitante", "")
+                ws["D39"] = datos_pdf.get("valor_inmueble", "")
+            break
+
     ws['C2'] = datos['fecha_formulario']
     ws['D2'] = datos['fecha_formulario']
+    ws['C2'].number_format = "dd/mm/yyyy hh:mm"
+    ws['D2'].number_format = "dd/mm/yyyy hh:mm"
     ws['H2'] = f"{consecutivo}-DVF"
     ws['C8'] = barrio.upper() if barrio != "No encontrado" else ""
     ws['E8'] = estrato if estrato != "No identificado" else ""
@@ -72,3 +94,41 @@ Fecha de la visita: {datos['fecha_formulario']}.
     wb.save(param_dest_path)
 
     log(f"Generado informe y Excel para {consecutivo}.", carpeta_path)
+
+def extraer_datos_pdf(ruta_pdf):
+    if not os.path.exists(ruta_pdf):
+        log(f"PDF no encontrado en {ruta_pdf}.", os.path.dirname(ruta_pdf))
+        return None
+
+    try:
+        reader = PdfReader(ruta_pdf)
+        texto = ""
+        for page in reader.pages:
+            texto += page.extract_text() + "\n"
+
+        if not texto.strip():
+            log(f"El PDF {ruta_pdf} no contiene texto extraíble. Posiblemente está escaneado.", os.path.dirname(ruta_pdf))
+            return None
+        
+    except Exception as e:
+        log(f"Error al leer el PDF {ruta_pdf}: {e}", os.path.dirname(ruta_pdf))
+        return None
+
+    datos = {}
+
+    # Extraer Fecha de radicación
+    match_fecha = re.search(r"Fecha de radicación\s+([0-9]{2}/[0-9]{2}/[0-9]{4})", texto)
+    if match_fecha:
+        datos["fecha_radicacion"] = match_fecha.group(1)
+
+    # Extraer Nombre del solicitante
+    match_nombre = re.search(r"Nombre y apellidos Solicitante\s+([A-Za-zÁÉÍÓÚÜÑáéíóúüñ'´`\- ]+)", texto)
+    if match_nombre:
+        datos["nombre_solicitante"] = match_nombre.group(1).title()
+
+    # Extraer Valor del inmueble
+    match_valor = re.search(r"Valor del Inmueble\s+(\d+)", texto)
+    if match_valor:
+        datos["valor_inmueble"] = int(match_valor.group(1))
+
+    return datos

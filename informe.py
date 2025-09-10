@@ -44,7 +44,9 @@ Sector {datos['sector']}
 
 Apartamento ubicado en {datos['piso']} piso, vista {datos['vista']}, diseño funcional, iluminación y ventilación natural, acabados normales.
 
-Garaje(s) No. 39 y 40 (2 unidades), sencillo(s), cubierto(s), en servidumbre propia. Depósito(s) No. 206 (1 unidad). El(los) garaje(s) y el(los) depósito(s) son de uso privado, según Escritura Pública suministrada. Área total construida de 91.05 m², área privada de 85.82 m², cuenta con el derecho de uso exclusivo sobre una zona común destinada a terraza con un área de 31.69 m², aproximadamente 28.61 m² medidos in situ.
+Garaje(s) No. 39 y 40 (2 unidades), sencillo(s), cubierto(s), en servidumbre propia. Depósito(s) No. 206 (1 unidad). El(los) garaje(s) y el(los) depósito(s) son de uso privado, según Escritura Pública suministrada.
+
+Área total construida de 91.05 m², área privada de 85.82 m², cuenta con el derecho de uso exclusivo sobre una zona común destinada a terraza con un área de 31.69 m², aproximadamente 28.61 m² medidos in situ.
 
 Fecha de la visita: {datos['fecha_formulario']}.
 """

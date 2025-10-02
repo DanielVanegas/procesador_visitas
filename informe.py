@@ -108,6 +108,16 @@ Apartamento ubicado en {datos['piso']} piso, vista {datos['vista']}, diseño fun
 
         texto += "."
 
+    # --- Texto por defecto cuando NO se marca 'mas_info' ---
+    if not datos.get("mas_info"):
+        texto += (
+            "\n\nGaraje(s) No. XX y XX (X unidades), sencillo(s), cubierto(s), en servidumbre propia. "
+            "Depósito(s) No. XX (X unidad). El(los) garaje(s) y el(los) depósito(s) son de uso privado, "
+            "según Escritura Pública suministrada.\n\n"
+            "Área total construida de XXX m², área privada de XXX m², cuenta con el derecho de uso exclusivo "
+            "sobre una zona común destinada a terraza con un área de XXX m², aproximadamente XXX m² medidos in situ."
+        )
+
     # --- Fecha ---
     texto += f"\n\nFecha de la visita: {datos['fecha_formulario']}."
 
@@ -159,6 +169,8 @@ Apartamento ubicado en {datos['piso']} piso, vista {datos['vista']}, diseño fun
     ws['E9'] = localidad.upper() if localidad != "No encontrado" else ""
     ws['K105'] = f"{lat}, {lon}"
     ws['K103'] = f"https://www.google.com/maps?q={lat},{lon}"
+    ws['G77'] = datos['area_privada']
+    ws['G76'] = datos['area_construida']
 
     wb.save(param_dest_path)
 
